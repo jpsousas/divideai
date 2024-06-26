@@ -1,4 +1,4 @@
-### Para fazer funcionar essa porra, baixar as bibliotecas do **[requirements](requirements.txt)**
+### Para fazer funcionar, baixar as bibliotecas do **[requirements](requirements.txt)**
 <p><span style="color:lightgreen">Isso se faz dentro do diretorio do projeto, no terminal, com:</span></p>
 
 ```{console, color = blue}
