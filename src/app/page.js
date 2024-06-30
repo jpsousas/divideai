@@ -1,95 +1,55 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+// page.js
+"use client"; // Adicione esta linha no topo
 
-export default function Home() {
+import React, { useState } from 'react';
+import NFCDataGrid from './components/NFCDataGrid';
+import Header from './components/Header';
+import Footer from './components/Footer';
+
+const HomePage = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [numPeople, setNumPeople] = useState(0);
+
+  const handleData = (data) => {
+    setData(data);
+    setLoading(false);
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Header onSubmit={(url) => handleSubmit(url)} />
+      <main style={{ flex: '1', padding: '20px' }}>
+        {loading && <div>Loading...</div>}
+        {data && (
+          <div>
+            <NFCDataGrid data={data} numPeople={numPeople} setNumPeople={setNumPeople} />
+          </div>
+        )}
+      </main>
+      <Footer />
+    </div>
   );
-}
+
+  async function handleSubmit(url) {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/extract-nfce', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+      if (!response.ok) {
+        throw new Error('Erro ao extrair dados da NFC-e');
+      }
+      const jsonData = await response.json();
+      handleData(jsonData);
+    } catch (error) {
+      console.error('Erro ao processar NFC-e:', error);
+    }
+  }
+};
+
+export default HomePage;
