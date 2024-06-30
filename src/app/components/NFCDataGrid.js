@@ -1,81 +1,82 @@
+// NFCDataGrid.js
+
 import React from 'react';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { DataGrid } from '@mui/x-data-grid';
 
 const NFCDataGrid = ({ data, totalValue, numPeople, peopleNames, onNameChange }) => {
   
-  // Colunas para exibir os itens da lista
+  // Função para marcar todas as checkboxes de devedores
+  const handleAllDebtorsChange = (event) => {
+    const isChecked = event.target.checked;
+    const updatedPeopleNames = peopleNames.map((person) => ({
+      ...person,
+      isChecked,
+    }));
+    onNameChange(updatedPeopleNames);
+  };
+
+  // Função para marcar uma checkbox de devedor individual
+  const handleDebtorChange = (index) => (event) => {
+    const isChecked = event.target.checked;
+    const updatedPeopleNames = [...peopleNames];
+    updatedPeopleNames[index].isChecked = isChecked;
+    onNameChange(updatedPeopleNames);
+  };
+
   const columns = [
-    { field: 'name', headerName: 'Item', flex: 1 },
-    { field: 'total_value', headerName: 'Valor Total', flex: 1 },
+    { field: 'name', headerName: 'Descrição do Item', width: 200 },
+    { field: 'total_value', headerName: 'Valor Total Item', type: 'number', width: 150 },
   ];
 
-  // Linha para exibir o total_value final da compra
-  const totalRow = {
-    id: 'total',
-    name: 'Total da Compra',
-    total_value: totalValue,
-  };
-
-  // Dados para o DataGrid
-  let rows = [];
-  if (data.length > 0) {
-    rows = data.map((item, index) => ({
-      id: index + 1,
-      name: item.name,
-      total_value: item.total_value,
-    }));
-    // Adicionar a linha do total_value final da compra ao final das outras linhas
-    rows.push(totalRow);
+  // Adicionando a coluna de devedores dinamicamente
+  for (let i = 1; i <= numPeople; i++) {
+    columns.push({
+      field: `person_${i}`,
+      headerName: `Devedor ${i}`,
+      width: 150,
+      renderCell: (params) => (
+        <Checkbox
+          checked={peopleNames[params.rowIndex]?.isChecked || false}
+          onChange={handleDebtorChange(params.rowIndex)}
+        />
+      ),
+    });
   }
 
-  // Colunas adicionais para as pessoas que irão dividir a compra
-  const debtorColumns = peopleNames.map((name, index) => ({
-    field: `debtor_${index}`,
-    headerName: name,
-    flex: 1,
-    type: 'boolean',
-    renderCell: (params) => (
-      <input
-        type="checkbox"
-        checked={params.value}
-        onChange={(e) => onNameChange(index, e.target.checked)}
-      />
-    ),
-  }));
-
-  // Coluna para marcar todos os devedores
-  const allDebtorsColumn = {
+  // Adicionando a coluna "Todos"
+  columns.push({
     field: 'all',
     headerName: 'Todos',
-    flex: 1,
-    type: 'boolean',
-    renderCell: (params) => (
-      <input
-        type="checkbox"
-        checked={params.value}
-        onChange={(e) => {
-          const newValues = {};
-          for (let i = 0; i < numPeople; i++) {
-            newValues[`debtor_${i}`] = e.target.checked;
-          }
-          params.api.setAllCellValues(params.id, newValues);
-        }}
+    width: 120,
+    renderCell: () => (
+      <FormControlLabel
+        control={<Checkbox onChange={handleAllDebtorsChange} />}
+        label="Todos"
       />
     ),
+  });
+
+  // Linha com o valor total da compra
+  const rows = data.map((item, index) => ({
+    id: index + 1,
+    name: item.name,
+    total_value: item.total_value,
+  }));
+
+  // Linha com os valores devido por pessoa
+  const debtRow = {
+    id: rows.length + 1,
+    name: 'Total a pagar por pessoa',
+    total_value: totalValue / numPeople,
   };
 
-  // Todas as colunas do DataGrid
-  const allColumns = [...columns, ...debtorColumns, allDebtorsColumn];
+  rows.push(debtRow);
 
   return (
-    <div style={{ height: 400, width: '100%', marginTop: '20px' }}>
-      <DataGrid
-        rows={rows}
-        columns={allColumns}
-        pageSize={5}
-        rowsPerPageOptions={[5]}
-        checkboxSelection
-      />
+    <div style={{ height: 400, width: '100%' }}>
+      <DataGrid rows={rows} columns={columns} pageSize={5} />
     </div>
   );
 };

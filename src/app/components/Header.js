@@ -10,7 +10,10 @@ const Header = ({ onSubmit }) => {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{
+      backgroundImage: 'url(/header-footer-image.png)',
+      backgroundSize: 'cover',
+    }}>
       <Toolbar>
         <Box
           component="form"
@@ -26,7 +29,7 @@ const Header = ({ onSubmit }) => {
             sx={{ maxWidth: 400, marginRight: 2 }}  // Defina a largura máxima desejada
           />
           <Button variant="contained" color="primary" type="submit">
-            Submeter
+            Submeter URL
           </Button>
         </Box>
       </Toolbar>
