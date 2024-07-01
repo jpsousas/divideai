@@ -32,13 +32,13 @@ const Page = () => {
       console.error('Erro ao processar NFC-e:', error);
       setError('Erro ao processar NFC-e. Tente novamente mais tarde.');
     } finally {
-      console.log("Sucesso no scrapping")
+      console.log("Sucesso na extração da NFC")
     }
   };
 
   const handleConfirmPopup = (numPeople) => {
     setNumPeople(numPeople);
-    setPeopleNames(Array(numPeople).fill(''));
+    setPeopleNames(Array(numPeople).fill('').map((_, i) => `Pessoa ${i + 1}`));
     setIsPopupOpen(false); // Fecha o popup após confirmar o número de pessoas
     setLoading(false);
   };
@@ -54,7 +54,8 @@ const Page = () => {
     flexDirection: 'column',
     width: '100%',
   };
-  //gera os skeleton muito foda..
+
+  //gera os skeletons muito foda..
   const generateSkeletonRows = (count) => {
     const skeletonRows = [];
     for (let i = 0; i < count; i++) {
