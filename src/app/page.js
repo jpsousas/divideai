@@ -1,63 +1,97 @@
-"use client"; // Adicione esta linha no topo
-
+"use client";
 import React, { useState } from 'react';
 import axios from 'axios';
-//import NFCDataGrid from '../components/NFCDataGrid';
-import Header from './components/Header'; 
+import { Skeleton } from '@mui/material';
+import NFCDataGrid from './components/NFCDataGrid';
+import Header from './components/Header';
 import Footer from './components/Footer';
 import DividiPopup from './components/popUp';
-import { NFCDataGrid } from './components/Table';
-
 
 const Page = () => {
-  const [data, setData] = useState(null); // Estado para armazenar os dados da NFC-e
-  const [totalValue, setTotalValue] = useState(0); // Estado para armazenar o valor total da compra
-  const [loading, setLoading] = useState(false); // Estado para controlar o loading
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // Estado para controlar a abertura do popup 
-  const [error, setError] = useState(null); // Estado para armazenar erros
-  const [numeroPessoas, setNumeroPessoas] = useState(1); 
-  // Função para lidar com o submit do formulário (simulação)
-  const handleSubmit = async (url) => {
-    setLoading(true); // Ativa o loading
+  const [data, setData] = useState(null);
+  const [totalValue, setTotalValue] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [numPeople, setNumPeople] = useState(0);
+  const [peopleNames, setPeopleNames] = useState([]);
 
+  const handleSubmit = async (url) => {
+    if (!url) return;
+
+    setLoading(true);
+    setIsPopupOpen(true);
+    //obtem o json com os dados da lista de compras
     try {
       const response = await axios.post('http://localhost:5000/process_nfc', { url });
       console.log('Response data:', response.data);
-
-      // Define os dados recebidos e o valor total da compra
-      setData(response.data.items); // Assumindo que response.data.items contém os itens da NFC-e
-      setTotalValue(response.data.total_value); // Define o valor total da compra
-
-      // Limpa erros anteriores
+      setData(response.data.items);
+      setTotalValue(response.data.total_value);
       setError(null);
     } catch (error) {
       console.error('Erro ao processar NFC-e:', error);
       setError('Erro ao processar NFC-e. Tente novamente mais tarde.');
     } finally {
-      setLoading(false); // Desativa o loading
+      console.log("Sucesso no scrapping")
     }
   };
-   
-  const handleConfirm = (numeroPessoas) => {
-    setNumeroPessoas(numeroPessoas);
-    setIsPopupOpen(false);
-  }
-  
- //adapatar o chamamento do NFCDataGrid para receber os dados la de nome e qtd devedores
+
+  const handleConfirmPopup = (numPeople) => {
+    setNumPeople(numPeople);
+    setPeopleNames(Array(numPeople).fill(''));
+    setIsPopupOpen(false); // Fecha o popup após confirmar o número de pessoas
+    setLoading(false);
+  };
+
+  const handleNameChange = (index, name) => {
+    const newPeopleNames = [...peopleNames];
+    newPeopleNames[index] = name;
+    setPeopleNames(newPeopleNames);
+  };
+
+  const skeletonStyles = {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+  };
+  //gera os skeleton muito foda..
+  const generateSkeletonRows = (count) => {
+    const skeletonRows = [];
+    for (let i = 0; i < count; i++) {
+      skeletonRows.push(
+        <Skeleton key={i} animation="wave" height={65} style={{ marginBottom: 2 }} />
+      );
+    }
+    return skeletonRows;
+  };
+
   return (
-    
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-    <Header onSubmit={handleSubmit} />
-    <main style={{ flex: '1', padding: '20px' }}>
-      {loading && <div>Loading...</div>}
-      {error && <div>{error}</div>}
-      <button onClick={() => setIsPopupOpen(true)}>Dividir Conta</button>
-       <DividiPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} onConfirm={handleConfirm} />
-      {data && <NFCDataGrid data={data} totalValue={totalValue} numeroPessoas={numeroPessoas} />}
-    </main>
-    <Footer />
-   
-  </div>
+      <Header onSubmit={handleSubmit} /> 
+      <main style={{ flex: '1', padding: '20px' }}>
+        {loading && (
+          <div style={skeletonStyles}>
+            {generateSkeletonRows(11)} {/* Ajuste o número de barras conforme necessário */}
+          </div>
+        )}
+        {error && <div>{error}</div>}
+        {data && !isPopupOpen && (
+          <NFCDataGrid
+            data={data}
+            totalValue={totalValue}
+            numPeople={numPeople}
+            peopleNames={peopleNames}
+            onNameChange={handleNameChange}
+          />
+        )}
+      </main>
+      <Footer />
+      <DividiPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        onConfirm={handleConfirmPopup}
+      />
+    </div>
   );
 };
 
