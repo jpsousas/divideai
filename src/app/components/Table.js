@@ -37,7 +37,7 @@ export function NFCDataGrid({ data, totalValue, numPeople, peopleNames, onNameCh
     newSelected[rowIndex] = Array(numPeople).fill(newAllChecked[rowIndex]);
     setSelected(newSelected);
   };
-
+  
   const columns = useMemo(() => [
     { field: 'index', headerName: 'Index', width: 100 },
     { field: 'name', headerName: 'Descrição Item', width: 400 },
