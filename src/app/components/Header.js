@@ -14,11 +14,21 @@ const Header = ({ onSubmit }) => {
       backgroundImage: 'url(/header-footer-image.png)',
       backgroundSize: 'cover',
     }}>
-      <Toolbar>
+      <Toolbar sx={{ // centralizar a box contendo o input e botao
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
         <Box
           component="form"
           onSubmit={handleSubmit}
-          sx={{ display: 'flex', alignItems: 'center', width: '100%' }}  // Ajuste aqui
+          sx={{ display: 'flex',
+                alignItems: 'center',
+                width: '80%' ,backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                padding: 2,
+                borderRadius: 1,
+                maxWidth: 800,}}  // ajustado os atributo da box mera estilização
         >
           <TextField
             value={url}
@@ -26,7 +36,7 @@ const Header = ({ onSubmit }) => {
             placeholder="Digite a URL da NFC-e"
             variant="outlined"
             fullWidth
-            sx={{ maxWidth: 400, marginRight: 2 }}  // Defina a largura máxima desejada
+            sx={{ maxWidth: 600, marginRight: 2 }}  // Defina a largura máxima desejada
           />
           <Button variant="contained" color="primary" type="submit">
             Submeter URL

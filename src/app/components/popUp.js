@@ -1,3 +1,4 @@
+//pop.js
 import React, { useState } from 'react';
 
 const DividiPopup = ({ isOpen, onClose, onConfirm }) => {
