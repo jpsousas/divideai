@@ -1,5 +1,5 @@
 // NFCDataGrid.js
-
+/*
 import React from 'react';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -82,3 +82,4 @@ const NFCDataGrid = ({ data, totalValue, numPeople, peopleNames, onNameChange })
 };
 
 export default NFCDataGrid;
+*/
