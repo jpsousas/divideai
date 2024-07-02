@@ -101,10 +101,6 @@ export function NFCDataGrid({ data, totalValue, numPeople, peopleNames, onNameCh
     console.log('Totals:', totals);
   }, [totals]);
 
-  if (!data || !Array.isArray(data) || data.length === 0 || !Array.isArray(peopleNames) || peopleNames.length !== numPeople) {
-    return <div>Dados inválidos</div>;
-  }
-
   return (
     <div>
       <DataGrid columns={columns} rows={rows} pageSize={5} />
@@ -118,4 +114,3 @@ export function NFCDataGrid({ data, totalValue, numPeople, peopleNames, onNameCh
     </div>
   );
 }
-

@@ -5,10 +5,6 @@ const DividiPopup = ({ isOpen, onClose, onConfirm }) => {
   const [numPeople, setNumPeople] = useState(1);
   const [peopleNames, setPeopleNames] = useState(['']);
 
-  useEffect(() => {
-    setPeopleNames(Array(numPeople).fill(''));
-  }, [numPeople]);
-
   const handleNameChange = (index, name) => {
     const newPeopleNames = [...peopleNames];
     newPeopleNames[index] = name;
@@ -16,9 +12,9 @@ const DividiPopup = ({ isOpen, onClose, onConfirm }) => {
   };
 
   const handleSubmit = () => {
+    console.log(peopleNames)
     onConfirm(numPeople, peopleNames);
-    console.log('Quantidade Pessoas ', {numPeople});
-    console.log('Nome pessoas: ', {peopleNames});
+
     onClose();
   };
   //pop le qtd de pessoas devedoras e para cada uma delas, exige um nome, quando clica em confirmar envia para a NFCDataGrid
@@ -29,21 +25,24 @@ const DividiPopup = ({ isOpen, onClose, onConfirm }) => {
           <h2>Quantas pessoas irão rachar?</h2>
           <label>
             Número de Pessoas:
-            <input 
-              type="number" 
-              value={numPeople} 
-              onChange={(e) => setNumPeople(e.target.value)} 
-              min="1" 
+            <input
+              type="number"
+              value={numPeople}
+              onChange={(e) => {
+                setNumPeople(e.target.value)
+                setPeopleNames(Array(Number(e.target.value)).fill(''))
+              }}
+              min="1"
             />
           </label>
-          {Array.from({ length: numPeople }).map((_, index) => (
+          {peopleNames.map((_, index) => (
             <div key={index}>
               <label>
                 Nome da Pessoa {index + 1}:
-                <input 
-                  type="text" 
-                  value={peopleNames[index]} 
-                  onChange={(e) => handleNameChange(index, e.target.value)} 
+                <input
+                  type="text"
+                  value={peopleNames[index]}
+                  onChange={(e) => handleNameChange(index, e.target.value)}
                 />
               </label>
             </div>
