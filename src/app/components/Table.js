@@ -2,23 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { DataGrid } from "@mui/x-data-grid";
 import Checkbox from '@mui/material/Checkbox';
 
-export function NFCDataGrid({ data, totalValue, numPeople, peopleNames, onNameChange }) {
-  console.log('Data:', data);
-  console.log('Total Value:', totalValue);
-  console.log('Numero Pessoas:', numPeople);
-  console.log('People Names:', peopleNames);
-
+export function NFCDataGrid({ data, totalValue, numPeople, peopleNames}) {
   const [selected, setSelected] = useState(() =>
-    data.map(() => Array(numPeople).fill(false))
+    data.map(() => peopleNames.map(() => false))
   );
   const [allChecked, setAllChecked] = useState(data.map(() => false));
-
+  
   useEffect(() => {
-    console.log('Data:', data);
-    console.log('Total Value:', totalValue);
-    console.log('Numero Pessoas:', numPeople);
-    console.log('People Names:', peopleNames);
-    setSelected(data.map(() => Array(numPeople).fill(false)));
+    setSelected(data.map(() => peopleNames.map(() => false)));
     setAllChecked(data.map(() => false));
   }, [data, totalValue, numPeople, peopleNames]);
 
@@ -34,7 +25,8 @@ export function NFCDataGrid({ data, totalValue, numPeople, peopleNames, onNameCh
     setAllChecked(newAllChecked);
 
     const newSelected = [...selected];
-    newSelected[rowIndex] = Array(numPeople).fill(newAllChecked[rowIndex]);
+    // Atualizar todos os checkboxes da linha quando "Todos" for clicado
+    newSelected[rowIndex] = newSelected[rowIndex].map(() => newAllChecked[rowIndex]);
     setSelected(newSelected);
   };
   
@@ -43,10 +35,10 @@ export function NFCDataGrid({ data, totalValue, numPeople, peopleNames, onNameCh
     { field: 'name', headerName: 'Descrição Item', width: 400 },
     { field: 'total_value', headerName: 'Preço total', width: 200 },
     { field: 'all', headerName: 'Todos', width: 100, renderCell: (params) => (
-        <Checkbox
-          checked={allChecked[params.row.id]}
-          onChange={() => handleAllChange(params.row.id)}
-        />
+      <Checkbox
+        checked={allChecked[params.row.id] || false} // Garante que checked seja booleano
+        onChange={() => handleAllChange(params.row.id)}
+      />
       )
     },
     ...peopleNames.map((name, index) => ({
@@ -55,7 +47,7 @@ export function NFCDataGrid({ data, totalValue, numPeople, peopleNames, onNameCh
       width: 150,
       renderCell: (params) => (
         <Checkbox
-          checked={selected[params.row.id][index]}
+          checked={selected[params.row.id][index] || false} // Garante que checked seja sempre booleano
           onChange={() => handleCheckboxChange(params.row.id, index)}
         />
       ),
@@ -71,35 +63,33 @@ export function NFCDataGrid({ data, totalValue, numPeople, peopleNames, onNameCh
     allChecked: allChecked[index],
   })), [data, selected, allChecked]);
 
-  useEffect(() => {
-    console.log('Columns:', columns);
-    console.log('Rows:', rows);
-  }, [columns, rows]);
 
   const calculateTotals = () => {
-    const totals = Array(numPeople).fill(0);
-
-    rows.forEach((row, rowIndex) => {
+    const totals = peopleNames.map(() => 0);
+    
+    rows.forEach((row) => {
       const itemTotal = row.total_value;
+      // Verificar se há pessoas selecionadas
       const checkedPeople = row.allChecked
         ? peopleNames.map((_, i) => i)
         : row.selected.map((isChecked, i) => (isChecked ? i : -1)).filter(i => i !== -1);
-
+  
+      // Se não houver pessoas selecionadas, ignore este item
+      if (checkedPeople.length === 0) {
+        return;
+      }
+      // Dividir o valor total igualmente entre as pessoas selecionadas
       const share = itemTotal / checkedPeople.length;
-
+      // Atualizar o total para cada pessoa
       checkedPeople.forEach(personIndex => {
         totals[personIndex] += share;
       });
     });
-
+  
     return totals;
   };
 
   const totals = calculateTotals();
-
-  useEffect(() => {
-    console.log('Totals:', totals);
-  }, [totals]);
 
   return (
     <div>
