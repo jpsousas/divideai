@@ -19,29 +19,30 @@ const Page = () => {
   const handleSubmit = async (url) => {
     if (!url) return;
 
-    setLoading(true);
-    setIsPopupOpen(true);
+      setLoading(true);
+      setIsPopupOpen(true);
 
-    let responseData = null;
-    //obtem o json com os dados da lista de compras
-    try {
-      const response = await axios.post('http://localhost:5000/process_nfc', { url });
-      responseData = response.data;
-      
-      setError(null);
-    } catch (error) {
-      console.error('Erro ao processar NFC-e:', error);
-      setError('Erro ao processar NFC-e. Tente novamente mais tarde.');
-    } finally {
-      if(responseData){
-        console.log('Response data:', responseData);
-        console.log(responseData.items);
-        setData(responseData.items);
-        setTotalValue(responseData.total_value);
-        console.log("Sucesso na extração da NFC");
+      let responseData = null;
+      //obtem o json com os dados da lista de compras
+      try {
+        const response = await axios.post('http://localhost:5000/process_nfc', { url });
+        responseData = response.data;
+        
+        setError(null);
+      } catch (error) {
+        console.error('Erro ao processar NFC-e:', error);
+        setError('Erro ao processar NFC-e. Tente novamente mais tarde.');
+      } finally {
+        if(responseData){
+          console.log('Response data:', responseData);
+          console.log(responseData.items);
+          setData(responseData.items);
+          setTotalValue(responseData.total_value);
+          setLoading(false);
+          console.log("Sucesso na extração da NFC");
+        }
+        
       }
-      
-    }
   };
 
   const handleConfirmPopup = (nPeople, pNames) => {
